@@ -23,14 +23,23 @@
     <link rel="stylesheet" href="assets/css/theme.css">
 
     <style>
-        /* CORRECCIÓN: Asegurar que el fondo no bloquee los clics */
+        /* CORREGIDO: Asegurar que el fondo no bloquee los clics */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
+            z-index: 0;
+        }
+
         .background-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -2;
+            z-index: 1; /* Cambiado de -2 a 1 */
+            pointer-events: none; /* Permitir clics a través del fondo */
         }
 
         .background-night {
@@ -39,7 +48,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
+            z-index: 2; /* Cambiado de -1 a 2 */
             pointer-events: none; /* Esto permite que el clic pase a través */
         }
 
@@ -49,7 +58,8 @@
             border: 1px solid rgba(65, 72, 104, 0.5);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             position: relative;
-            z-index: 50; /* Al frente de todo */
+            z-index: 10; /* Reducido de 50 a 10, pero sigue siendo mayor que los fondos */
+            pointer-events: auto; /* Asegurar que el contenedor reciba clics */
         }
 
         .input-field {
@@ -59,13 +69,19 @@
             transition: all 0.3s ease;
             cursor: text; /* Forzar cursor de texto */
             position: relative;
-            z-index: 60;
+            z-index: 20; /* Mayor que el contenedor */
+            pointer-events: auto; /* Asegurar que los inputs reciban clics */
         }
 
         .input-field:focus {
             outline: none;
             border-color: #7aa2f7;
             box-shadow: 0 0 20px rgba(122, 162, 247, 0.2);
+        }
+
+        /* Asegurar que el formulario y todos sus elementos sean clickeables */
+        form, form * {
+            pointer-events: auto;
         }
 
         @keyframes shake {
@@ -88,12 +104,15 @@
         .neon-glow { box-shadow: 0 0 15px rgba(122, 162, 247, 0.4); }
     </style>
 </head>
-<body class="background-container bg-slate-900">
+<body class="bg-slate-900">
+    <!-- CORREGIDO: Los fondos ahora tienen pointer-events: none -->
+    <div class="background-container"></div>
     <div class="background-night"></div>
 
-    <!-- El contenedor principal debe tener un z-index alto -->
-    <div class="relative z-50 flex items-center justify-center min-h-screen p-4">
-        <div class="glass-container rounded-3xl p-10 max-w-md w-full">
+    <!-- CORREGIDO: El contenedor principal ahora tiene un z-index apropiado y pointer-events: auto -->
+    <div class="relative flex items-center justify-center min-h-screen p-4" style="z-index: 5; pointer-events: none;">
+        <!-- CORREGIDO: El glass-container tiene pointer-events: auto para permitir clics -->
+        <div class="glass-container rounded-3xl p-10 max-w-md w-full" style="pointer-events: auto;">
             <div class="text-center mb-8">
                 <i data-lucide="user-plus" class="w-12 h-12 mx-auto mb-4" style="color: #7aa2f7"></i>
                 <h1 class="text-2xl font-semibold" style="color: #c0caf5">Registro</h1>
