@@ -7,42 +7,136 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <script>
-        (function() {
-            const bgNight = 'https://i.pinimg.com/originals/4c/23/98/4c2398e6be397bb08b5cb70b2192d730.gif';
-            document.documentElement.style.setProperty('--bg-night', `url('${bgNight}')`);
-        })();
-    </script>
-
-    <!-- Firebase Modules -->
-    <script type="module" src="assets/js/firebase-config.js"></script>
-    <script src="assets/js/background-manager.js"></script>
-    
-    <link rel="stylesheet" href="assets/css/auras.css">
-    <link rel="stylesheet" href="assets/css/theme.css">
 
     <style>
-        .glass-container {
-            background: rgba(36, 40, 59, 0.85);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(65, 72, 104, 0.5);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        :root {
+            --background: #1a1b26;
+            --foreground: #a9b1d6;
+            --card-background: #24283b;
+            --border: #414868;
+            --accent: #7aa2f7;
+            --accent-dark: #3d59a1;
+            --green: #9ece6a;
+            --yellow: #e0af68;
+            --red: #f7768e;
         }
 
-        .neon-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--accent);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--accent);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .table-row {
-            transition: all 0.2s ease;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            background-image: url('https://i.pinimg.com/originals/4c/23/98/4c2398e6be397bb08b5cb70b2192d730.gif');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--foreground);
+            min-height: 100vh;
         }
 
-        .table-row:hover {
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .glass {
+            background: rgba(36, 40, 59, 0.9);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-title h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header-title p {
+            opacity: 0.6;
+            font-size: 14px;
+        }
+
+        .btn-icon {
+            background: rgba(26, 27, 38, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            border-color: var(--accent);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(36, 40, 59, 0.9);
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 300;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.6;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover td {
             background: rgba(122, 162, 247, 0.05);
         }
 
@@ -50,114 +144,125 @@
         .grade-medium { color: var(--yellow); }
         .grade-low { color: var(--red); }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
         }
 
-        .fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
+        .empty-state i {
+            opacity: 0.3;
+            margin-bottom: 16px;
         }
 
-        .loading-spinner {
-            border: 3px solid rgba(122, 162, 247, 0.3);
+        .empty-state h3 {
+            opacity: 0.6;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            opacity: 0.4;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
             border-radius: 50%;
-            border-top: 3px solid var(--accent);
             animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body class="background-container">
-    <div class="background-night"></div>
+<body oncontextmenu="return false;">
 
-    <div class="relative z-10 p-8">
-        <div class="max-w-4xl mx-auto">
-            <!-- Header -->
-            <div class="glass-container rounded-3xl p-8 mb-8">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <i data-lucide="clipboard-list" class="w-10 h-10" style="color: var(--accent)"></i>
-                        <div>
-                            <h1 class="text-2xl font-semibold" style="color: var(--foreground)">Resultados</h1>
-                            <p class="text-sm" style="color: var(--foreground); opacity: 0.6">Evaluación Grupo 1 - Presidentes Militares</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <button onclick="loadResults()" class="p-3 rounded-xl transition-all" style="background: rgba(26, 27, 38, 0.6); border: 1px solid var(--border)"
-                            onmouseover="this.style.borderColor='var(--accent)'"
-                            onmouseout="this.style.borderColor='var(--border)'">
-                            <i data-lucide="refresh-cw" class="w-5 h-5" style="color: var(--foreground)"></i>
-                        </button>
-                        <a href="menu_inicio.html" class="p-3 rounded-xl transition-all" style="background: rgba(26, 27, 38, 0.6); border: 1px solid var(--border)"
-                            onmouseover="this.style.borderColor='var(--accent)'"
-                            onmouseout="this.style.borderColor='var(--border)'">
-                            <i data-lucide="home" class="w-5 h-5" style="color: var(--foreground)"></i>
-                        </a>
+    <div class="container">
+        <div class="glass">
+            <div class="header">
+                <div class="header-left">
+                    <i data-lucide="clipboard-list" style="width: 40px; height: 40px; color: var(--accent);"></i>
+                    <div class="header-title">
+                        <h1>Resultados</h1>
+                        <p>Evaluación Grupo 1 - Presidentes Militares</p>
                     </div>
                 </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="loadResults()" class="btn-icon">
+                        <i data-lucide="refresh-cw" style="width: 20px; height: 20px;"></i>
+                    </button>
+                    <a href="registro.html" class="btn-icon">
+                        <i data-lucide="home" style="width: 20px; height: 20px;"></i>
+                    </a>
+                </div>
             </div>
+        </div>
 
-            <!-- Stats -->
-            <div class="grid grid-cols-3 gap-4 mb-8">
-                <div class="glass-container rounded-2xl p-6 text-center">
-                    <div class="text-3xl font-light" style="color: var(--foreground)" id="total-estudiantes">0</div>
-                    <p class="text-xs uppercase tracking-wider mt-1" style="color: var(--foreground); opacity: 0.6">Total Estudiantes</p>
-                </div>
-                <div class="glass-container rounded-2xl p-6 text-center">
-                    <div class="text-3xl font-light" style="color: var(--accent)" id="promedio">0.0</div>
-                    <p class="text-xs uppercase tracking-wider mt-1" style="color: var(--foreground); opacity: 0.6">Promedio</p>
-                </div>
-                <div class="glass-container rounded-2xl p-6 text-center">
-                    <div class="text-3xl font-light" style="color: var(--foreground)" id="aprobados">0</div>
-                    <p class="text-xs uppercase tracking-wider mt-1" style="color: var(--foreground); opacity: 0.6">Aprobados (≥6.0)</p>
-                </div>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="total-estudiantes" style="color: var(--foreground)">0</div>
+                <div class="stat-label">Total Estudiantes</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-value" id="promedio" style="color: var(--accent)">0.0</div>
+                <div class="stat-label">Promedio</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="aprobados" style="color: var(--foreground)">0</div>
+                <div class="stat-label">Aprobados (≥6.0)</div>
+            </div>
+        </div>
 
-            <!-- Table -->
-            <div class="glass-container rounded-3xl overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="border-b" style="border-color: rgba(65, 72, 104, 0.3)">
-                                <th class="text-left px-6 py-4 text-xs font-mono uppercase tracking-wider" style="color: var(--foreground); opacity: 0.6">#</th>
-                                <th class="text-left px-6 py-4 text-xs font-mono uppercase tracking-wider" style="color: var(--foreground); opacity: 0.6">Estudiante</th>
-                                <th class="text-center px-6 py-4 text-xs font-mono uppercase tracking-wider" style="color: var(--foreground); opacity: 0.6">Nota</th>
-                                <th class="text-center px-6 py-4 text-xs font-mono uppercase tracking-wider" style="color: var(--foreground); opacity: 0.6">Correctas</th>
-                                <th class="text-center px-6 py-4 text-xs font-mono uppercase tracking-wider" style="color: var(--foreground); opacity: 0.6">Fecha</th>
-                            </tr>
-                        </thead>
-                        <tbody id="results-body">
-                            <tr>
-                                <td colspan="5" class="px-6 py-12 text-center" style="color: var(--foreground); opacity: 0.6">
-                                    <div class="flex flex-col items-center gap-3">
-                                        <div class="loading-spinner w-8 h-8"></div>
-                                        <p>Cargando resultados...</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+        <div class="glass">
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Cargando resultados...</p>
             </div>
-
-            <!-- Empty state -->
-            <div id="empty-state" class="hidden glass-container rounded-3xl p-12 text-center">
-                <i data-lucide="users" class="w-16 h-16 mx-auto mb-4" style="color: var(--foreground); opacity: 0.3"></i>
-                <h3 class="text-xl mb-2" style="color: var(--foreground); opacity: 0.6">Sin resultados aún</h3>
-                <p class="text-sm" style="color: var(--foreground); opacity: 0.4">Los estudiantes aún no han completado la evaluación</p>
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <i data-lucide="users" style="width: 64px; height: 64px;"></i>
+                <h3>Sin resultados aún</h3>
+                <p>Los estudiantes aún no han completado la evaluación</p>
             </div>
+            <table id="results-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Estudiante</th>
+                        <th style="text-align: center;">Nota</th>
+                        <th style="text-align: center;">Correctas</th>
+                        <th style="text-align: center;">Fecha</th>
+                    </tr>
+                </thead>
+                <tbody id="results-body">
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-        const db = window.firebaseDb;
+        const firebaseConfig = {
+            apiKey: 'AIzaSyDp-D_lQHCmaZzxclHhgEPj8tfbLMPPT1Y',
+            authDomain: 'status-code-418.firebaseapp.com',
+            projectId: 'status-code-418',
+            storageBucket: 'status-code-418.firebasestorage.app',
+            messagingSenderId: '108910520136',
+            appId: '1:108910520136:web:7617759f815a18d29af57d',
+            measurementId: 'G-4ZPE1TCDBE'
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
         function getGradeColor(nota) {
             if(nota >= 8) return 'grade-high';
@@ -178,17 +283,14 @@
         }
 
         async function loadResults() {
+            const loading = document.getElementById('loading');
+            const emptyState = document.getElementById('empty-state');
+            const table = document.getElementById('results-table');
             const tbody = document.getElementById('results-body');
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="px-6 py-12 text-center" style="color: var(--foreground); opacity: 0.6">
-                        <div class="flex flex-col items-center gap-3">
-                            <div class="loading-spinner w-8 h-8"></div>
-                            <p>Cargando resultados...</p>
-                        </div>
-                    </td>
-                </tr>
-            `;
+            
+            loading.style.display = 'block';
+            emptyState.style.display = 'none';
+            table.style.display = 'none';
 
             try {
                 const q = query(collection(db, 'evaluaciones_grupo1'), orderBy('completedAt', 'desc'));
@@ -202,17 +304,16 @@
                     }
                 });
 
+                loading.style.display = 'none';
+
                 if(resultados.length === 0) {
-                    document.getElementById('empty-state').classList.remove('hidden');
-                    tbody.innerHTML = '';
+                    emptyState.style.display = 'block';
                     document.getElementById('total-estudiantes').textContent = '0';
                     document.getElementById('promedio').textContent = '0.0';
                     document.getElementById('aprobados').textContent = '0';
                     lucide.createIcons();
                     return;
                 }
-
-                document.getElementById('empty-state').classList.add('hidden');
 
                 const total = resultados.length;
                 const sumaNotas = resultados.reduce((sum, r) => sum + parseFloat(r.nota), 0);
@@ -224,42 +325,33 @@
                 document.getElementById('aprobados').textContent = aprobados;
 
                 tbody.innerHTML = resultados.map((r, i) => `
-                    <tr class="table-row border-b fade-in" style="border-color: rgba(65, 72, 104, 0.3); animation-delay: ${i * 50}ms">
-                        <td class="px-6 py-4 font-mono text-sm" style="color: var(--foreground); opacity: 0.6">${i + 1}</td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="neon-dot"></div>
-                                <span style="color: var(--foreground)">${r.nombre}</span>
-                            </div>
+                    <tr>
+                        <td style="opacity: 0.6; font-family: 'JetBrains Mono', monospace;">${i + 1}</td>
+                        <td>${r.nombreCompleto || r.nombre}</td>
+                        <td style="text-align: center;">
+                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: bold; font-size: 18px;" class="${getGradeColor(r.nota)}">${r.nota}</span>
+                            <span style="opacity: 0.4">/10</span>
                         </td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="font-mono font-bold text-lg ${getGradeColor(r.nota)}">${r.nota}</span>
-                            <span class="text-sm" style="color: var(--foreground); opacity: 0.4">/10</span>
-                        </td>
-                        <td class="px-6 py-4 text-center font-mono" style="color: var(--foreground); opacity: 0.6">
+                        <td style="text-align: center; opacity: 0.6; font-family: 'JetBrains Mono', monospace;">
                             ${r.respuestasCorrectas || 0}/${r.totalPreguntas || 10}
                         </td>
-                        <td class="px-6 py-4 text-center text-sm" style="color: var(--foreground); opacity: 0.6">
-                            ${formatDate(r.completedAt)}
-                        </td>
+                        <td style="text-align: center; opacity: 0.6;">${formatDate(r.completedAt)}</td>
                     </tr>
                 `).join('');
 
+                table.style.display = 'table';
                 lucide.createIcons();
 
             } catch (error) {
-                console.error('Error al cargar resultados:', error);
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="px-6 py-12 text-center" style="color: var(--red)">
-                            <p>Error al cargar los resultados</p>
-                            <p class="text-sm" style="color: var(--foreground); opacity: 0.6; margin-top: 0.5rem">${error.message}</p>
-                        </td>
-                    </tr>
+                console.error('Error:', error);
+                loading.innerHTML = `
+                    <p style="color: var(--red)">Error al cargar los resultados</p>
+                    <p style="opacity: 0.6; font-size: 12px; margin-top: 8px">${error.message}</p>
                 `;
             }
         }
 
+        // Solo bloquear F12 y teclado
         window.addEventListener('keydown', (e) => {
             if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "C" || e.key === "J")) || (e.ctrlKey && e.key === "u")) {
                 e.preventDefault();

@@ -166,33 +166,46 @@
             }
 
             try {
+                // Verificar en Firebase si ya completó el examen
                 const docRef = doc(db, 'evaluaciones_grupo1', nombreKey);
                 const docSnap = await getDoc(docRef);
                 
-                if (docSnap.exists() && docSnap.data().estado === 'completado') {
-                    showBlock(docSnap.data().nota);
-                    return;
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    // Si ya está completado, mostrar bloqueo
+                    if (data.estado === 'completado') {
+                        showBlock(data.nota);
+                        return;
+                    }
+                    
+                    // Si está registrado pero no completado, mostrar home
+                    if (data.estado === 'registrado') {
+                        showHome(data.nombreCompleto);
+                        return;
+                    }
                 }
                 
+                // Si no existe en Firebase, verificar localStorage
                 if(localStorage.getItem('g1_done')) {
                     showBlock(localStorage.getItem('g1_score'));
                     return;
                 }
                 
-                showHome();
+                showHome(nombreCompleto);
             } catch (error) {
                 console.error('Error:', error);
-                showHome();
+                showHome(nombreCompleto);
             }
         }
 
-        function showHome() {
+        function showHome(nombre) {
             container.innerHTML = `
                 <div class="glass">
                     <i data-lucide="shield" style="width: 64px; height: 64px; color: var(--accent); margin-bottom: 24px;"></i>
                     <h1 style="font-size: 28px; font-weight: 600; margin-bottom: 8px;">Presidentes Militares (60-70)</h1>
                     <p style="opacity: 0.6; margin-bottom: 16px; text-transform: uppercase; font-size: 12px; letter-spacing: 2px;">Evaluación · Grupo 1</p>
-                    <p style="margin-bottom: 32px;">Estudiante: <span style="color: var(--accent)">${nombreCompleto}</span></p>
+                    <p style="margin-bottom: 32px;">Estudiante: <span style="color: var(--accent)">${nombre}</span></p>
                     <button id="start-btn" class="btn">Iniciar Examen</button>
                 </div>
             `;
@@ -277,6 +290,7 @@
                     <div style="background: rgba(26,27,38,0.8); padding: 12px 24px; border-radius: 50px; border: 1px solid var(--border); display: inline-block; font-family: 'JetBrains Mono', monospace;">
                         Nota: ${nota} / 10.0
                     </div>
+                    <p style="margin-top: 16px; opacity: 0.4;">Ya completaste esta evaluación anteriormente</p>
                 </div>
             `;
             lucide.createIcons();

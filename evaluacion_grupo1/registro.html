@@ -8,87 +8,140 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
-    <script>
-        (function() {
-            const bgNight = 'https://i.pinimg.com/originals/4c/23/98/4c2398e6be397bb08b5cb70b2192d730.gif';
-            document.documentElement.style.setProperty('--bg-night', `url('${bgNight}')`);
-        })();
-    </script>
-
-    <!-- Firebase Modules -->
-    <script type="module" src="assets/js/firebase-config.js"></script>
-    <script src="assets/js/background-manager.js"></script>
-    
-    <link rel="stylesheet" href="assets/css/auras.css">
-    <link rel="stylesheet" href="assets/css/theme.css">
-
     <style>
-        body {
-            user-select: auto;
-            -webkit-user-select: auto;
+        :root {
+            --background: #1a1b26;
+            --foreground: #a9b1d6;
+            --card-background: #24283b;
+            --border: #414868;
+            --accent: #7aa2f7;
+            --accent-dark: #3d59a1;
         }
-        
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            background-image: url('https://i.pinimg.com/originals/4c/23/98/4c2398e6be397bb08b5cb70b2192d730.gif');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--foreground);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .glass {
+            background: rgba(36, 40, 59, 0.95);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 40px;
+        }
+
         .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
             background: rgba(26, 27, 38, 0.9);
             border: 1px solid var(--border);
             color: var(--foreground);
-            pointer-events: auto;
-            cursor: text;
-            user-select: auto;
+            font-size: 16px;
         }
-        
+
         .input-field:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 20px rgba(122, 162, 247, 0.2);
         }
-        
+
         .input-field::placeholder {
             color: rgba(169, 177, 214, 0.4);
         }
+
+        .btn {
+            width: 100%;
+            background: var(--accent);
+            color: var(--background);
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background: var(--accent-dark);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 </head>
-<body class="background-container" oncontextmenu="return false;">
-    <div class="background-night"></div>
+<body oncontextmenu="return false;">
 
-    <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
-        <div class="glass-container rounded-3xl p-10 max-w-md w-full" style="background: rgba(36, 40, 59, 0.95);">
-            <div class="text-center mb-8">
-                <i data-lucide="user-plus" class="w-12 h-12 mx-auto mb-4" style="color: var(--accent)"></i>
-                <h1 class="text-2xl font-semibold" style="color: var(--foreground)">Registro</h1>
-                <p class="text-sm mt-1" style="color: var(--foreground); opacity: 0.6">Evaluación Grupo 1</p>
+    <div class="container">
+        <div class="glass">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <i data-lucide="user-plus" style="width: 48px; height: 48px; color: var(--accent); margin-bottom: 16px;"></i>
+                <h1 style="font-size: 24px; font-weight: 600;">Registro</h1>
+                <p style="opacity: 0.6; font-size: 14px;">Evaluación Grupo 1</p>
             </div>
 
-            <form id="register-form" class="space-y-5">
-                <div>
-                    <label class="block text-xs uppercase tracking-wider mb-2" style="color: var(--foreground); opacity: 0.6">Primer Nombre</label>
-                    <input type="text" id="nombre" class="input-field w-full px-4 py-3 rounded-xl" placeholder="Ingresa tu nombre" autocomplete="off">
+            <form id="register-form">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; opacity: 0.6;">Primer Nombre</label>
+                    <input type="text" id="nombre" class="input-field" placeholder="Ingresa tu nombre" autocomplete="off">
                 </div>
 
-                <div>
-                    <label class="block text-xs uppercase tracking-wider mb-2" style="color: var(--foreground); opacity: 0.6">Segundo Nombre</label>
-                    <input type="text" id="segundo-nombre" class="input-field w-full px-4 py-3 rounded-xl" placeholder="Ingresa tu segundo nombre" autocomplete="off">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; opacity: 0.6;">Segundo Nombre</label>
+                    <input type="text" id="segundo-nombre" class="input-field" placeholder="Ingresa tu segundo nombre" autocomplete="off">
                 </div>
 
-                <button type="submit" class="w-full font-semibold py-3 rounded-xl transition-all duration-300" 
-                    style="background: var(--accent); color: #1a1b26;"
-                    onmouseover="this.style.background='var(--accent-dark)'"
-                    onmouseout="this.style.background='var(--accent)'">
-                    Continuar al Examen
-                </button>
+                <button type="submit" id="submit-btn" class="btn">Continuar al Examen</button>
             </form>
 
-            <div id="loading" class="hidden text-center py-4">
-                <div class="inline-block w-6 h-6 border-2 rounded-full animate-spin" style="border-color: var(--accent); border-top-color: transparent"></div>
-                <p class="text-sm mt-2" style="color: var(--foreground); opacity: 0.6">Registrando...</p>
+            <div id="loading" style="display: none; text-align: center; padding: 20px;">
+                <div class="btn" style="opacity: 0.6;">Cargando...</div>
+            </div>
+
+            <div id="already-done" style="display: none; text-align: center;">
+                <i data-lucide="lock" style="width: 48px; height: 48px; opacity: 0.3; margin-bottom: 16px;"></i>
+                <h2 style="font-size: 18px; opacity: 0.6; margin-bottom: 16px;">Ya realizaste esta evaluación</h2>
+                <p style="opacity: 0.4;">No puedes volver a presentar el examen</p>
             </div>
         </div>
     </div>
 
     <script type="module">
-        import { getFirestore, collection, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, collection, doc, getDoc, setDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-        const db = window.firebaseDb;
+        const firebaseConfig = {
+            apiKey: 'AIzaSyDp-D_lQHCmaZzxclHhgEPj8tfbLMPPT1Y',
+            authDomain: 'status-code-418.firebaseapp.com',
+            projectId: 'status-code-418',
+            storageBucket: 'status-code-418.firebasestorage.app',
+            messagingSenderId: '108910520136',
+            appId: '1:108910520136:web:7617759f815a18d29af57d',
+            measurementId: 'G-4ZPE1TCDBE'
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
         const palabrasProhibidas = [
             'mierda', 'carajo', 'pendejo', 'idiota', 'estupido', 'estúpido', 'joder', 'coño', 'culo', 'puta', 'puto', 
@@ -113,69 +166,128 @@
             return regex.test(nombre.trim());
         }
 
-        const form = document.getElementById('register-form');
-        const loading = document.getElementById('loading');
-
-        if (form) {
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const nombreInput = document.getElementById('nombre');
-                const segundoInput = document.getElementById('segundo-nombre');
-                
-                const nombre = nombreInput ? nombreInput.value.trim() : '';
-                const segundoNombre = segundoInput ? segundoInput.value.trim() : '';
-                
-                if (!validarNombre(nombre)) {
-                    alert('Por favor ingresa un nombre válido (solo letras, mínimo 2 caracteres)');
-                    if (nombreInput) nombreInput.focus();
-                    return;
-                }
-                
-                if (!validarNombre(segundoNombre)) {
-                    alert('Por favor ingresa un segundo nombre válido (solo letras, mínimo 2 caracteres)');
-                    if (segundoInput) segundoInput.focus();
-                    return;
-                }
-
-                form.classList.add('hidden');
-                loading.classList.remove('hidden');
-
+        // Verificar si ya hizo el examen
+        async function checkExistingUser() {
+            const nombreCompleto = localStorage.getItem('g1_nombre');
+            const nombreKey = localStorage.getItem('g1_nombre_normalizado');
+            
+            if (nombreCompleto && nombreKey) {
                 try {
-                    const nombreCompleto = `${nombre} ${segundoNombre}`;
-                    
-                    localStorage.setItem('g1_nombre', nombreCompleto);
-                    localStorage.setItem('g1_nombre_normalizado', nombre.toLowerCase());
-                    
-                    const nombreKey = nombre.toLowerCase().replace(/\s+/g, '_');
                     const docRef = doc(db, 'evaluaciones_grupo1', nombreKey);
+                    const docSnap = await getDoc(docRef);
                     
-                    await setDoc(docRef, {
-                        nombre: nombreCompleto,
-                        nombreNormalizado: nombre.toLowerCase(),
-                        segundoNombre: segundoNombre,
-                        estado: 'registrado',
-                        createdAt: new Date().toISOString()
-                    });
-
-                    window.location.href = 'examen.html';
-                    
-                } catch (error) {
-                    console.error('Error al registrar:', error);
-                    loading.classList.add('hidden');
-                    form.classList.remove('hidden');
-                    alert('Error al registrar. Por favor intenta de nuevo.');
+                    if (docSnap.exists() && docSnap.data().estado === 'completado') {
+                        showAlreadyDone(docSnap.data().nota);
+                        return true;
+                    }
+                } catch (e) {
+                    console.error('Error:', e);
                 }
-            });
+            }
+            return false;
         }
 
-        // Solo bloquear F12 y teclado, no click
+        function showAlreadyDone(nota) {
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('already-done').style.display = 'block';
+            lucide.createIcons();
+        }
+
+        // Verificar si el nombre completo ya existe
+        async function verificarNombreDuplicado(nombreCompleto) {
+            try {
+                const q = query(
+                    collection(db, 'evaluaciones_grupo1'),
+                    where('nombreCompletoLower', '==', nombreCompleto.toLowerCase())
+                );
+                const snapshot = await getDocs(q);
+                return !snapshot.empty;
+            } catch (e) {
+                console.error('Error verificando duplicado:', e);
+                return false;
+            }
+        }
+
+        const form = document.getElementById('register-form');
+        const submitBtn = document.getElementById('submit-btn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const nombreInput = document.getElementById('nombre');
+            const segundoInput = document.getElementById('segundo-nombre');
+            
+            const nombre = nombreInput.value.trim();
+            const segundoNombre = segundoInput.value.trim();
+            
+            if (!validarNombre(nombre)) {
+                alert('Por favor ingresa un nombre válido (solo letras, mínimo 2 caracteres)');
+                nombreInput.focus();
+                return;
+            }
+            
+            if (!validarNombre(segundoNombre)) {
+                alert('Por favor ingresa un segundo nombre válido (solo letras, mínimo 2 caracteres)');
+                segundoInput.focus();
+                return;
+            }
+
+            const nombreCompleto = `${nombre} ${segundoNombre}`;
+            const nombreCompletoLower = nombreCompleto.toLowerCase();
+            
+            // Desactivar botón
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Verificando...';
+
+            try {
+                // Verificar si el nombre completo ya existe
+                const esDuplicado = await verificarNombreDuplicado(nombreCompleto);
+                
+                if (esDuplicado) {
+                    alert('Este nombre ya está registrado. Por favor usa otro nombre.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Continuar al Examen';
+                    return;
+                }
+
+                submitBtn.textContent = 'Registrando...';
+                
+                localStorage.setItem('g1_nombre', nombreCompleto);
+                localStorage.setItem('g1_nombre_normalizado', nombre.toLowerCase());
+                
+                const nombreKey = nombre.toLowerCase().replace(/\s+/g, '_');
+                const docRef = doc(db, 'evaluaciones_grupo1', nombreKey);
+                
+                await setDoc(docRef, {
+                    nombre: nombre,
+                    segundoNombre: segundoNombre,
+                    nombreCompleto: nombreCompleto,
+                    nombreCompletoLower: nombreCompletoLower,
+                    nombreNormalizado: nombre.toLowerCase(),
+                    estado: 'registrado',
+                    createdAt: new Date().toISOString()
+                });
+
+                window.location.href = 'examen.html';
+                
+            } catch (error) {
+                console.error('Error al registrar:', error);
+                alert('Error al registrar. Por favor intenta de nuevo.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Continuar al Examen';
+            }
+        });
+
+        // Solo bloquear F12 y teclado
         window.addEventListener('keydown', (e) => {
             if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "C" || e.key === "J")) || (e.ctrlKey && e.key === "u")) {
                 e.preventDefault();
             }
         });
 
+        // Iniciar - verificar si ya hizo el examen
+        checkExistingUser();
         lucide.createIcons();
     </script>
 </body>
