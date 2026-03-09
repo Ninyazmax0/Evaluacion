@@ -7,67 +7,134 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <script>
-        (function() {
-            const bgNight = 'https://i.pinimg.com/originals/4c/23/98/4c2398e6be397bb08b5cb70b2192d730.gif';
-            document.documentElement.style.setProperty('--bg-night', `url('${bgNight}')`);
-        })();
-    </script>
-
-    <!-- Firebase Modules -->
-    <script type="module" src="assets/js/firebase-config.js"></script>
-    <script src="assets/js/background-manager.js"></script>
-    
-    <link rel="stylesheet" href="assets/css/auras.css">
-    <link rel="stylesheet" href="assets/css/theme.css">
 
     <style>
-        .glass-container {
-            background: rgba(36, 40, 59, 0.85);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(65, 72, 104, 0.5);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        :root {
+            --background: #1a1b26;
+            --foreground: #a9b1d6;
+            --card-background: #24283b;
+            --border: #414868;
+            --accent: #7aa2f7;
+            --accent-dark: #3d59a1;
         }
 
-        .option-card {
-            transition: all 0.2s ease;
-            background: rgba(26, 27, 38, 0.6);
-            border: 1px solid var(--border);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            background-image: url('https://i.pinimg.com/originals/4c/23/98/4c2398e6be397bb08b5cb70b2192d730.gif');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: var(--foreground);
+            min-height: 100vh;
         }
 
-        .option-card:hover:not(:disabled) {
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .glass {
+            background: rgba(36, 40, 59, 0.9);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 40px;
+            text-align: center;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: var(--background);
+            padding: 12px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: var(--accent-dark);
+        }
+
+        .question-card {
+            background: rgba(36, 40, 59, 0.9);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .question-header {
+            background: rgba(26, 27, 38, 0.9);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .question-body {
+            padding: 40px;
+        }
+
+        .option {
+            background: rgba(26, 27, 38, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .option:hover {
             border-color: var(--accent);
             background: rgba(122, 162, 247, 0.1);
             transform: translateY(-2px);
         }
 
-        @keyframes pulse-neon {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
-        .neon-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--accent);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--accent);
-            animation: pulse-neon 2s infinite;
+        .option-letter {
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
         }
     </style>
 </head>
-<body class="background-container">
-    <div class="background-night"></div>
+<body oncontextmenu="return false;">
 
-    <div id="main-view" class="relative z-10 w-full max-w-2xl px-6 py-12">
+    <div class="container">
+        <div id="main-view">
+            <!-- Contenido -->
+        </div>
     </div>
 
     <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-        const db = window.firebaseDb;
+        const firebaseConfig = {
+            apiKey: 'AIzaSyDp-D_lQHCmaZzxclHhgEPj8tfbLMPPT1Y',
+            authDomain: 'status-code-418.firebaseapp.com',
+            projectId: 'status-code-418',
+            storageBucket: 'status-code-418.firebasestorage.app',
+            messagingSenderId: '108910520136',
+            appId: '1:108910520136:web:7617759f815a18d29af57d',
+            measurementId: 'G-4ZPE1TCDBE'
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
         const preguntas = [
             { t: "¿Qué partido político fue el brazo de la Fuerza Armada entre 1960 y 1970?", o: ["PDC", "PCN", "ARENA", "FMLN"], c: 1 },
@@ -114,27 +181,23 @@
                 
                 showHome();
             } catch (error) {
-                console.error('Error al verificar estado:', error);
+                console.error('Error:', error);
                 showHome();
             }
         }
 
         function showHome() {
             container.innerHTML = `
-                <div class="glass-container rounded-3xl p-12 text-center border" style="border-color: rgba(65, 72, 104, 0.3)">
-                    <i data-lucide="shield" class="w-16 h-16 mx-auto mb-6 opacity-80" style="color: var(--accent)"></i>
-                    <h1 class="text-3xl font-semibold mb-2 tracking-tighter" style="color: var(--foreground)">Presidentes Militares (60-70)</h1>
-                    <p class="text-sm mb-4 uppercase tracking-[0.2em]" style="color: var(--foreground); opacity: 0.6">Evaluación · Grupo 1</p>
-                    <p class="mb-8" style="color: var(--foreground)">Estudiante: <span style="color: var(--accent)">${nombreCompleto}</span></p>
-                    <button onclick="start()" class="font-semibold px-10 py-3 rounded-full transition-all duration-300"
-                        style="background: var(--accent); color: #1a1b26"
-                        onmouseover="this.style.background='var(--accent-dark)'"
-                        onmouseout="this.style.background='var(--accent)'">
-                        Iniciar Examen
-                    </button>
+                <div class="glass">
+                    <i data-lucide="shield" style="width: 64px; height: 64px; color: var(--accent); margin-bottom: 24px;"></i>
+                    <h1 style="font-size: 28px; font-weight: 600; margin-bottom: 8px;">Presidentes Militares (60-70)</h1>
+                    <p style="opacity: 0.6; margin-bottom: 16px; text-transform: uppercase; font-size: 12px; letter-spacing: 2px;">Evaluación · Grupo 1</p>
+                    <p style="margin-bottom: 32px;">Estudiante: <span style="color: var(--accent)">${nombreCompleto}</span></p>
+                    <button id="start-btn" class="btn">Iniciar Examen</button>
                 </div>
             `;
             lucide.createIcons();
+            document.getElementById('start-btn').addEventListener('click', start);
         }
 
         function start() {
@@ -151,34 +214,30 @@
 
             const q = preguntas[index];
             container.innerHTML = `
-                <div class="glass-container rounded-3xl overflow-hidden">
-                    <div class="px-8 py-4 flex justify-between items-center border-b" style="background: rgba(26, 27, 38, 0.6); border-color: rgba(65, 72, 104, 0.3)">
-                        <div class="flex items-center gap-3">
-                            <div class="neon-dot"></div>
-                            <span class="text-xs font-mono" style="color: var(--foreground); opacity: 0.6">Pregunta ${index + 1} de ${preguntas.length}</span>
-                        </div>
+                <div class="question-card">
+                    <div class="question-header">
+                        <span style="opacity: 0.6; font-size: 14px;">Pregunta ${index + 1} de ${preguntas.length}</span>
                     </div>
-                    <div class="p-10">
-                        <h2 class="text-2xl font-light mb-8" style="color: var(--foreground)">${q.t}</h2>
-                        <div class="grid gap-3">
+                    <div class="question-body">
+                        <h2 style="font-size: 20px; font-weight: 400; margin-bottom: 30px;">${q.t}</h2>
+                        <div>
                             ${q.o.map((opt, i) => `
-                                <button onclick="handleSelect(${i})" class="option-card w-full text-left p-4 rounded-xl flex items-center gap-4">
-                                    <span class="text-xs font-mono" style="color: var(--accent); opacity: 0.5">${String.fromCharCode(65+i)}</span>
+                                <div class="option" onclick="handleSelect(${i})">
+                                    <span class="option-letter">${String.fromCharCode(65+i)}</span>
                                     <span>${opt}</span>
-                                </button>
+                                </div>
                             `).join('')}
                         </div>
                     </div>
                 </div>
             `;
-            lucide.createIcons();
         }
 
-        function handleSelect(i) {
+        window.handleSelect = function(i) {
             if(i === preguntas[index].c) score++;
             index++;
             renderQuestion();
-        }
+        };
 
         async function finish() {
             const final = (score / preguntas.length * 10).toFixed(1);
@@ -196,16 +255,15 @@
                     completedAt: new Date().toISOString()
                 });
             } catch (error) {
-                console.error('Error al guardar en Firebase:', error);
+                console.error('Error:', error);
             }
             
             container.innerHTML = `
-                <div class="glass-container rounded-3xl p-12 text-center">
-                    <i data-lucide="check-circle" class="w-16 h-16 mx-auto mb-6" style="color: var(--accent)"></i>
-                    <h2 class="text-xl mb-2" style="color: var(--foreground); opacity: 0.6">Evaluación Finalizada</h2>
-                    <div class="text-6xl font-light my-6" style="color: var(--foreground)">${final}</div>
-                    <p class="text-xs uppercase tracking-widest" style="color: var(--foreground); opacity: 0.4">Puntaje registrado</p>
-                    <p class="text-sm mt-4" style="color: var(--foreground); opacity: 0.6">Gracias por completar el examen</p>
+                <div class="glass">
+                    <i data-lucide="check-circle" style="width: 64px; height: 64px; color: var(--accent); margin-bottom: 24px;"></i>
+                    <h2 style="font-size: 20px; opacity: 0.6; margin-bottom: 8px;">Evaluación Finalizada</h2>
+                    <div style="font-size: 56px; font-weight: 300; margin: 24px 0;">${final}</div>
+                    <p style="opacity: 0.4; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Puntaje registrado</p>
                 </div>
             `;
             lucide.createIcons();
@@ -213,18 +271,18 @@
 
         function showBlock(nota) {
             container.innerHTML = `
-                <div class="glass-container rounded-3xl p-12 text-center">
-                    <i data-lucide="lock" class="w-16 h-16 mx-auto mb-6" style="color: var(--foreground); opacity: 0.3"></i>
-                    <h2 class="text-xl mb-4" style="color: var(--foreground); opacity: 0.6">Evaluación Ya Completada</h2>
-                    <div class="py-3 px-6 rounded-full inline-block font-mono" style="background: rgba(26, 27, 38, 0.6); border: 1px solid var(--border); color: var(--foreground)">
+                <div class="glass">
+                    <i data-lucide="lock" style="width: 64px; height: 64px; opacity: 0.3; margin-bottom: 24px;"></i>
+                    <h2 style="font-size: 20px; opacity: 0.6; margin-bottom: 16px;">Evaluación Ya Completada</h2>
+                    <div style="background: rgba(26,27,38,0.8); padding: 12px 24px; border-radius: 50px; border: 1px solid var(--border); display: inline-block; font-family: 'JetBrains Mono', monospace;">
                         Nota: ${nota} / 10.0
                     </div>
-                    <p class="text-sm mt-4" style="color: var(--foreground); opacity: 0.6">Ya has completado esta evaluación anteriormente</p>
                 </div>
             `;
             lucide.createIcons();
         }
 
+        // Solo bloquear F12 y teclado
         window.addEventListener('keydown', (e) => {
             if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "C" || e.key === "J")) || (e.ctrlKey && e.key === "u")) {
                 e.preventDefault();
