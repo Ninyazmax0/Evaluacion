@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados - Evaluación Grupo 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        (function() {
+            const bgNight = 'https://i.pinimg.com/originals/4c/23/98/4c2398e6be397bb08b5cb70b2192d730.gif';
+            document.documentElement.style.setProperty('--bg-night', `url('${bgNight}')`);
+        })();
+    </script>
+
+    <!-- Firebase Modules -->
+    <script type="module" src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/background-manager.js"></script>
+    
+    <link rel="stylesheet" href="assets/css/auras.css">
+    <link rel="stylesheet" href="assets/css/theme.css">
+
+    <style>
+        .glass-container {
+            background: rgba(36, 40, 59, 0.85);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(65, 72, 104, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .neon-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .table-row {
+            transition: all 0.2s ease;
+        }
+
+        .table-row:hover {
+            background: rgba(122, 162, 247, 0.05);
+        }
+
+        .grade-high { color: var(--green); }
+        .grade-medium { color: var(--yellow); }
+        .grade-low { color: var(--red); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        .loading-spinner {
+            border: 3px solid rgba(122, 162, 247, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid var(--accent);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="background-container">
+    <div class="background-night"></div>
+
+    <div class="relative z-10 p-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <div class="glass-container rounded-3xl p-8 mb-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <i data-lucide="clipboard-list" class="w-10 h-10" style="color: var(--accent)"></i>
+                        <div>
+                            <h1 class="text-2xl font-semibold" style="color: var(--foreground)">Resultados</h1>
+                            <p class="text-sm" style="color: var(--foreground); opacity: 0.6">Evaluación Grupo 1 - Presidentes Militares</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="loadResults()" class="p-3 rounded-xl transition-all" style="background: rgba(26, 27, 38, 0.6); border: 1px solid var(--border)"
+                            onmouseover="this.style.borderColor='var(--accent)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <i data-lucide="refresh-cw" class="w-5 h-5" style="color: var(--foreground)"></i>
+                        </button>
+                        <a href="menu_inicio.html" class="p-3 rounded-xl transition-all" style="background: rgba(26, 27, 38, 0.6); border: 1px solid var(--border)"
+                            onmouseover="this.style.borderColor='var(--accent)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <i data-lucide="home" class="w-5 h-5" style="color: var(--foreground)"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-3 gap-4 mb-8">
+                <div class="glass-container rounded-2xl p-6 text-center">
+                    <div class="text-3xl font-light" style="color: var(--foreground)" id="total-estudiantes">0</div>
+                    <p class="text-xs uppercase tracking-wider mt-1" style="color: var(--foreground); opacity: 0.6">Total Estudiantes</p>
+                </div>
+                <div class="glass-container rounded-2xl p-6 text-center">
+                    <div class="text-3xl font-light" style="color: var(--accent)" id="promedio">0.0</div>
+                    <p class="text-xs uppercase tracking-wider mt-1" style="color: var(--foreground); opacity: 0.6">Promedio</p>
+                </div>
+                <div class="glass-container rounded-2xl p-6 text-center">
+                    <div class="text-3xl font-light" style="color: var(--foreground)" id="aprobados">0</div>
+                    <p class="text-xs uppercase tracking-wider mt-1" style="color: var(--foreground); opacity: 0.6">Aprobados (≥6.0)</p>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="glass-container rounded-3xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b" style="border-color: rgba(65, 72, 104, 0.3)">
+                                <th class="text-left px-6 py-4 text-xs font-mono uppercase tracking-wider" style="color: var(--foreground); opacity: 0.6">#</th>
+                                <th class="text-left px-6 py-4 text-xs font-mono uppercase tracking-wider" style="color: var(--foreground); opacity: 0.6">Estudiante</th>
+                                <th class="text-center px-6 py-4 text-xs font-mono uppercase tracking-wider" style="color: var(--foreground); opacity: 0.6">Nota</th>
+                                <th class="text-center px-6 py-4 text-xs font-mono uppercase tracking-wider" style="color: var(--foreground); opacity: 0.6">Correctas</th>
+                                <th class="text-center px-6 py-4 text-xs font-mono uppercase tracking-wider" style="color: var(--foreground); opacity: 0.6">Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-body">
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center" style="color: var(--foreground); opacity: 0.6">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <div class="loading-spinner w-8 h-8"></div>
+                                        <p>Cargando resultados...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div id="empty-state" class="hidden glass-container rounded-3xl p-12 text-center">
+                <i data-lucide="users" class="w-16 h-16 mx-auto mb-4" style="color: var(--foreground); opacity: 0.3"></i>
+                <h3 class="text-xl mb-2" style="color: var(--foreground); opacity: 0.6">Sin resultados aún</h3>
+                <p class="text-sm" style="color: var(--foreground); opacity: 0.4">Los estudiantes aún no han completado la evaluación</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        const db = window.firebaseDb;
+
+        function getGradeColor(nota) {
+            if(nota >= 8) return 'grade-high';
+            if(nota >= 6) return 'grade-medium';
+            return 'grade-low';
+        }
+
+        function formatDate(fechaISO) {
+            if(!fechaISO) return '-';
+            const fecha = new Date(fechaISO);
+            return fecha.toLocaleDateString('es-SV', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        async function loadResults() {
+            const tbody = document.getElementById('results-body');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center" style="color: var(--foreground); opacity: 0.6">
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="loading-spinner w-8 h-8"></div>
+                            <p>Cargando resultados...</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            try {
+                const q = query(collection(db, 'evaluaciones_grupo1'), orderBy('completedAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+                
+                const resultados = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if(data.estado === 'completado') {
+                        resultados.push(data);
+                    }
+                });
+
+                if(resultados.length === 0) {
+                    document.getElementById('empty-state').classList.remove('hidden');
+                    tbody.innerHTML = '';
+                    document.getElementById('total-estudiantes').textContent = '0';
+                    document.getElementById('promedio').textContent = '0.0';
+                    document.getElementById('aprobados').textContent = '0';
+                    lucide.createIcons();
+                    return;
+                }
+
+                document.getElementById('empty-state').classList.add('hidden');
+
+                const total = resultados.length;
+                const sumaNotas = resultados.reduce((sum, r) => sum + parseFloat(r.nota), 0);
+                const promedio = (sumaNotas / total).toFixed(1);
+                const aprobados = resultados.filter(r => parseFloat(r.nota) >= 6).length;
+
+                document.getElementById('total-estudiantes').textContent = total;
+                document.getElementById('promedio').textContent = promedio;
+                document.getElementById('aprobados').textContent = aprobados;
+
+                tbody.innerHTML = resultados.map((r, i) => `
+                    <tr class="table-row border-b fade-in" style="border-color: rgba(65, 72, 104, 0.3); animation-delay: ${i * 50}ms">
+                        <td class="px-6 py-4 font-mono text-sm" style="color: var(--foreground); opacity: 0.6">${i + 1}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="neon-dot"></div>
+                                <span style="color: var(--foreground)">${r.nombre}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="font-mono font-bold text-lg ${getGradeColor(r.nota)}">${r.nota}</span>
+                            <span class="text-sm" style="color: var(--foreground); opacity: 0.4">/10</span>
+                        </td>
+                        <td class="px-6 py-4 text-center font-mono" style="color: var(--foreground); opacity: 0.6">
+                            ${r.respuestasCorrectas || 0}/${r.totalPreguntas || 10}
+                        </td>
+                        <td class="px-6 py-4 text-center text-sm" style="color: var(--foreground); opacity: 0.6">
+                            ${formatDate(r.completedAt)}
+                        </td>
+                    </tr>
+                `).join('');
+
+                lucide.createIcons();
+
+            } catch (error) {
+                console.error('Error al cargar resultados:', error);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center" style="color: var(--red)">
+                            <p>Error al cargar los resultados</p>
+                            <p class="text-sm" style="color: var(--foreground); opacity: 0.6; margin-top: 0.5rem">${error.message}</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "C" || e.key === "J")) || (e.ctrlKey && e.key === "u")) {
+                e.preventDefault();
+            }
+        });
+
+        window.onload = loadResults;
+    </script>
+</body>
+</html>

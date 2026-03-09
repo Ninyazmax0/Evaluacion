@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación Grupo 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        (function() {
+            const bgNight = 'https://i.pinimg.com/originals/4c/23/98/4c2398e6be397bb08b5cb70b2192d730.gif';
+            document.documentElement.style.setProperty('--bg-night', `url('${bgNight}')`);
+        })();
+    </script>
+
+    <!-- Firebase Modules -->
+    <script type="module" src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/background-manager.js"></script>
+    
+    <link rel="stylesheet" href="assets/css/auras.css">
+    <link rel="stylesheet" href="assets/css/theme.css">
+
+    <style>
+        .glass-container {
+            background: rgba(36, 40, 59, 0.85);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(65, 72, 104, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .option-card {
+            transition: all 0.2s ease;
+            background: rgba(26, 27, 38, 0.6);
+            border: 1px solid var(--border);
+            color: var(--foreground);
+        }
+
+        .option-card:hover:not(:disabled) {
+            border-color: var(--accent);
+            background: rgba(122, 162, 247, 0.1);
+            transform: translateY(-2px);
+        }
+
+        @keyframes pulse-neon {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .neon-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+            animation: pulse-neon 2s infinite;
+        }
+    </style>
+</head>
+<body class="background-container">
+    <div class="background-night"></div>
+
+    <div id="main-view" class="relative z-10 w-full max-w-2xl px-6 py-12">
+    </div>
+
+    <script type="module">
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        const db = window.firebaseDb;
+
+        const preguntas = [
+            { t: "¿Qué partido político fue el brazo de la Fuerza Armada entre 1960 y 1970?", o: ["PDC", "PCN", "ARENA", "FMLN"], c: 1 },
+            { t: "¿Cómo se le conocía a El Salvador debido a su dependencia del café?", o: ["República Bananera", "Valle de Oro", "República Cafetalera", "Costa del Sol"], c: 2 },
+            { t: "¿A qué valor se mantuvo fijado el Colón respecto al dólar estadounidense?", o: ["8.75 por $1", "5.00 por $1", "2.50 por $1", "1.00 por $1"], c: 2 },
+            { t: "¿Qué conflicto rompió el Mercado Común Centroamericano en 1969?", o: ["Guerra Civil", "Guerra con Honduras", "Guerra de las 100 Horas", "Golpe de Estado"], c: 1 },
+            { t: "¿Cuál fue el segundo producto de exportación más importante en los años 60?", o: ["Azúcar", "Maíz", "Ajonjolí", "Algodón"], c: 3 },
+            { t: "¿Qué fenómeno económico ocurrió a finales de los 70 por temor a una revolución?", o: ["Reforma Agraria", "Fuga de Capitales", "Nacionalización", "Inversión Extranjera"], c: 1 },
+            { t: "¿Qué factor atrajo empresas estadounidenses mediante leyes de fomento?", o: ["Baja Deuda", "Inversión Extranjera Directa", "Exportación", "Manejo de Divisas"], c: 1 },
+            { t: "Durante este periodo, El Salvador tenía una balanza positiva con:", o: ["Estados Unidos", "Europa", "Centroamérica", "Asia"], c: 2 },
+            { t: "¿Qué sector era la base de la economía salvadoreña (1960-1979)?", o: ["Primario", "Secundario", "Terciario", "Servicios"], c: 0 },
+            { t: "¿Cómo se llamó al sistema de los gobiernos militares en este periodo?", o: ["Democracia Directa", "Dictadura Totalitaria", "Autoritarismo Modernizador", "Socialismo"], c: 2 }
+        ];
+
+        let index = 0;
+        let score = 0;
+        const container = document.getElementById('main-view');
+        
+        let nombreCompleto = '';
+        let nombreKey = '';
+
+        async function init() {
+            nombreCompleto = localStorage.getItem('g1_nombre');
+            nombreKey = localStorage.getItem('g1_nombre_normalizado');
+            
+            if (!nombreCompleto || !nombreKey) {
+                window.location.href = 'registro.html';
+                return;
+            }
+
+            try {
+                const docRef = doc(db, 'evaluaciones_grupo1', nombreKey);
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists() && docSnap.data().estado === 'completado') {
+                    showBlock(docSnap.data().nota);
+                    return;
+                }
+                
+                if(localStorage.getItem('g1_done')) {
+                    showBlock(localStorage.getItem('g1_score'));
+                    return;
+                }
+                
+                showHome();
+            } catch (error) {
+                console.error('Error al verificar estado:', error);
+                showHome();
+            }
+        }
+
+        function showHome() {
+            container.innerHTML = `
+                <div class="glass-container rounded-3xl p-12 text-center border" style="border-color: rgba(65, 72, 104, 0.3)">
+                    <i data-lucide="shield" class="w-16 h-16 mx-auto mb-6 opacity-80" style="color: var(--accent)"></i>
+                    <h1 class="text-3xl font-semibold mb-2 tracking-tighter" style="color: var(--foreground)">Presidentes Militares (60-70)</h1>
+                    <p class="text-sm mb-4 uppercase tracking-[0.2em]" style="color: var(--foreground); opacity: 0.6">Evaluación · Grupo 1</p>
+                    <p class="mb-8" style="color: var(--foreground)">Estudiante: <span style="color: var(--accent)">${nombreCompleto}</span></p>
+                    <button onclick="start()" class="font-semibold px-10 py-3 rounded-full transition-all duration-300"
+                        style="background: var(--accent); color: #1a1b26"
+                        onmouseover="this.style.background='var(--accent-dark)'"
+                        onmouseout="this.style.background='var(--accent)'">
+                        Iniciar Examen
+                    </button>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function start() {
+            index = 0;
+            score = 0;
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            if(index >= preguntas.length) {
+                finish();
+                return;
+            }
+
+            const q = preguntas[index];
+            container.innerHTML = `
+                <div class="glass-container rounded-3xl overflow-hidden">
+                    <div class="px-8 py-4 flex justify-between items-center border-b" style="background: rgba(26, 27, 38, 0.6); border-color: rgba(65, 72, 104, 0.3)">
+                        <div class="flex items-center gap-3">
+                            <div class="neon-dot"></div>
+                            <span class="text-xs font-mono" style="color: var(--foreground); opacity: 0.6">Pregunta ${index + 1} de ${preguntas.length}</span>
+                        </div>
+                    </div>
+                    <div class="p-10">
+                        <h2 class="text-2xl font-light mb-8" style="color: var(--foreground)">${q.t}</h2>
+                        <div class="grid gap-3">
+                            ${q.o.map((opt, i) => `
+                                <button onclick="handleSelect(${i})" class="option-card w-full text-left p-4 rounded-xl flex items-center gap-4">
+                                    <span class="text-xs font-mono" style="color: var(--accent); opacity: 0.5">${String.fromCharCode(65+i)}</span>
+                                    <span>${opt}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function handleSelect(i) {
+            if(i === preguntas[index].c) score++;
+            index++;
+            renderQuestion();
+        }
+
+        async function finish() {
+            const final = (score / preguntas.length * 10).toFixed(1);
+            
+            localStorage.setItem('g1_done', 'true');
+            localStorage.setItem('g1_score', final);
+            
+            try {
+                const docRef = doc(db, 'evaluaciones_grupo1', nombreKey);
+                await updateDoc(docRef, {
+                    estado: 'completado',
+                    nota: final,
+                    respuestasCorrectas: score,
+                    totalPreguntas: preguntas.length,
+                    completedAt: new Date().toISOString()
+                });
+            } catch (error) {
+                console.error('Error al guardar en Firebase:', error);
+            }
+            
+            container.innerHTML = `
+                <div class="glass-container rounded-3xl p-12 text-center">
+                    <i data-lucide="check-circle" class="w-16 h-16 mx-auto mb-6" style="color: var(--accent)"></i>
+                    <h2 class="text-xl mb-2" style="color: var(--foreground); opacity: 0.6">Evaluación Finalizada</h2>
+                    <div class="text-6xl font-light my-6" style="color: var(--foreground)">${final}</div>
+                    <p class="text-xs uppercase tracking-widest" style="color: var(--foreground); opacity: 0.4">Puntaje registrado</p>
+                    <p class="text-sm mt-4" style="color: var(--foreground); opacity: 0.6">Gracias por completar el examen</p>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function showBlock(nota) {
+            container.innerHTML = `
+                <div class="glass-container rounded-3xl p-12 text-center">
+                    <i data-lucide="lock" class="w-16 h-16 mx-auto mb-6" style="color: var(--foreground); opacity: 0.3"></i>
+                    <h2 class="text-xl mb-4" style="color: var(--foreground); opacity: 0.6">Evaluación Ya Completada</h2>
+                    <div class="py-3 px-6 rounded-full inline-block font-mono" style="background: rgba(26, 27, 38, 0.6); border: 1px solid var(--border); color: var(--foreground)">
+                        Nota: ${nota} / 10.0
+                    </div>
+                    <p class="text-sm mt-4" style="color: var(--foreground); opacity: 0.6">Ya has completado esta evaluación anteriormente</p>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "C" || e.key === "J")) || (e.ctrlKey && e.key === "u")) {
+                e.preventDefault();
+            }
+        });
+
+        window.onload = init;
+    </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+/**
+ * Tokyo Night Theme for Prism.js
+ * Optimized for comparison with Monaco Editor
+ */
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #a9b1d6;
+	background: #1a1b26;
+	text-shadow: none;
+	font-family: 'JetBrains Mono', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+    border: 1px solid #24283b;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #1a1b26;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #565f89;
+    font-style: italic;
+}
+
+.token.punctuation {
+	color: #9aa5ce;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #ff9e64;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #9ece6a;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+	color: #89ddff;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+	color: #bb9af7;
+}
+
+.token.function,
+.token.class-name {
+	color: #7aa2f7;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+	color: #bb9af7;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+
+/* Line Numbers */
+.line-numbers .line-numbers-rows {
+    border-right: 1px solid #24283b;
+}
+.line-numbers-rows > span:before {
+    color: #565f89;
+}
+
+/* Indentation guides */
+.code-block pre {
+  position: relative;
+  tab-size: 4;
+}
+.code-block pre::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-image: linear-gradient(to right, transparent 0%, transparent calc(var(--indent-size) - 1px), var(--border) calc(var(--indent-size) - 1px), var(--border) var(--indent-size));
+  background-size: var(--indent-size) 100%;
+  pointer-events: none;
+}
+:root { --indent-size: 1.5rem; }
