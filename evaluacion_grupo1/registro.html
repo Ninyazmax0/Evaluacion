@@ -1,15 +1,220 @@
-<script>
-  document.addEventListener('keydown', function(event) {
-    // Allow normal input in text fields
-    const inputFields = ['TEXTAREA', 'INPUT'];
-    if (inputFields.includes(event.target.tagName)) {
-      return;
-    }
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Evaluación Grupo 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
-    // Block specific keys to prevent access to developer tools
-    const blockedKeys = ['F12', 'I', 'J', 'C', 'U', 'S', 'P']; // Alt + Actions
-    if (blockedKeys.includes(event.key) && (event.ctrlKey || event.shiftKey)) {
-        event.preventDefault();
-    }
-  });
-</script>
+    <script>
+        (function() {
+            const bgNight = 'https://i.pinimg.com/originals/4c/23/98/4c2398e6be397bb08b5cb70b2192d730.gif';
+            document.documentElement.style.setProperty('--bg-night', `url('${bgNight}')`);
+        })();
+    </script>
+
+    <!-- Firebase Modules -->
+    <script type="module" src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/background-manager.js"></script>
+    
+    <link rel="stylesheet" href="assets/css/auras.css">
+    <link rel="stylesheet" href="assets/css/theme.css">
+
+    <style>
+        .glass-container {
+            background: rgba(36, 40, 59, 0.85);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(65, 72, 104, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .input-field {
+            background: rgba(26, 27, 38, 0.8);
+            border: 1px solid var(--border);
+            color: var(--foreground);
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(122, 162, 247, 0.2);
+        }
+
+        .input-field::placeholder {
+            color: rgba(169, 177, 214, 0.4);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        .error-text {
+            color: var(--red);
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .error-text.show {
+            display: block;
+        }
+
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(122, 162, 247, 0.4);
+        }
+    </style>
+</head>
+<body class="background-container">
+    <div class="background-night"></div>
+
+    <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+        <div class="glass-container rounded-3xl p-10 max-w-md w-full">
+            <div class="text-center mb-8">
+                <i data-lucide="user-plus" class="w-12 h-12 mx-auto mb-4" style="color: var(--accent)"></i>
+                <h1 class="text-2xl font-semibold" style="color: var(--foreground)">Registro</h1>
+                <p class="text-sm mt-1" style="color: var(--foreground); opacity: 0.6">Evaluación Grupo 1 - Presidentes Militares</p>
+            </div>
+
+            <form id="register-form" class="space-y-5">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider mb-2" style="color: var(--foreground); opacity: 0.6">Primer Nombre</label>
+                    <input type="text" id="nombre" class="input-field w-full px-4 py-3 rounded-xl" placeholder="Ingresa tu nombre" autocomplete="off">
+                    <p id="error-nombre" class="error-text">Por favor ingresa un nombre válido</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider mb-2" style="color: var(--foreground); opacity: 0.6">Segundo Nombre</label>
+                    <input type="text" id="segundo-nombre" class="input-field w-full px-4 py-3 rounded-xl" placeholder="Ingresa tu segundo nombre" autocomplete="off">
+                    <p id="error-segundo" class="error-text">Por favor ingresa un segundo nombre válido</p>
+                </div>
+
+                <button type="submit" class="w-full font-semibold py-3 rounded-xl transition-all duration-300 neon-glow" 
+                    style="background: var(--accent); color: #1a1b26"
+                    onmouseover="this.style.background='var(--accent-dark)'"
+                    onmouseout="this.style.background='var(--accent)'">
+                    Continuar al Examen
+                </button>
+            </form>
+
+            <div id="loading" class="hidden text-center py-4">
+                <div class="inline-block w-6 h-6 border-2 rounded-full animate-spin" style="border-color: var(--accent); border-top-color: transparent"></div>
+                <p class="text-sm mt-2" style="color: var(--foreground); opacity: 0.6">Registrando...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { getFirestore, collection, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        const db = window.firebaseDb;
+
+        const palabrasProhibidas = [
+            'mierda', 'carajo', 'pendejo', 'idiota', 'estupido', 'estúpido', 'joder', 'coño', 'culo', 'puta', 'puto', 
+            'marica', 'maricón', 'gilipolla', 'hostia', 'verga', 'chupapiya', 'baboso', 'bobo', 'tonto',
+            'zorra', 'zorro', 'perra', 'perro', 'vaca', 'burro', 'puerco', 'gordo', 'flaco', 'feo', 'ratón',
+            'rata', 'cucaracha', 'chinche', 'pulga', 'gato', 'locooo', 'maldito', 'demonio', 'diablo', 'infierno',
+            'basura', 'mierd', 'vulgar', 'ofensivo', 'error', 'test', 'prueba', 'aaa', 'bbb', 'ccc', 'ddd',
+            '123', 'abc', 'asd', 'qwe', 'xxx', 'yyy', 'zzz', 'lol', 'xd', 'xdxd', 'hjkl', 'ffff', 'gggg'
+        ];
+
+        function validarNombre(nombre) {
+            if (!nombre || nombre.trim().length < 2) return false;
+            const nombreLimpio = nombre.toLowerCase().trim();
+            
+            for (const palabra of palabrasProhibidas) {
+                if (nombreLimpio.includes(palabra)) {
+                    return false;
+                }
+            }
+            
+            const regex = /^[a-záéíóúñüA-ZÁÉÍÓÚÑÜ\s]+$/;
+            return regex.test(nombre.trim());
+        }
+
+        function mostrarError(inputId, mensaje) {
+            const input = document.getElementById(inputId);
+            const error = document.getElementById('error-' + inputId);
+            input.classList.add('shake');
+            input.style.borderColor = 'var(--red)';
+            error.textContent = mensaje;
+            error.classList.add('show');
+            setTimeout(() => {
+                input.classList.remove('shake');
+            }, 300);
+        }
+
+        function limpiarError(inputId) {
+            const input = document.getElementById(inputId);
+            const error = document.getElementById('error-' + inputId);
+            input.style.borderColor = 'var(--border)';
+            error.classList.remove('show');
+        }
+
+        document.getElementById('nombre').addEventListener('input', () => limpiarError('nombre'));
+        document.getElementById('segundo-nombre').addEventListener('input', () => limpiarError('segundo-nombre'));
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const nombre = document.getElementById('nombre').value.trim();
+            const segundoNombre = document.getElementById('segundo-nombre').value.trim();
+            
+            if (!validarNombre(nombre)) {
+                mostrarError('nombre', 'Por favor ingresa un nombre válido (solo letras)');
+                return;
+            }
+            
+            if (!validarNombre(segundoNombre)) {
+                mostrarError('segundo-nombre', 'Por favor ingresa un segundo nombre válido (solo letras)');
+                return;
+            }
+
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('loading').classList.remove('hidden');
+
+            try {
+                const nombreCompleto = `${nombre} ${segundoNombre}`;
+                
+                localStorage.setItem('g1_nombre', nombreCompleto);
+                localStorage.setItem('g1_nombre_normalizado', nombre.toLowerCase());
+                
+                const nombreKey = nombre.toLowerCase().replace(/\s+/g, '_');
+                const docRef = doc(db, 'evaluaciones_grupo1', nombreKey);
+                
+                await setDoc(docRef, {
+                    nombre: nombreCompleto,
+                    nombreNormalizado: nombre.toLowerCase(),
+                    segundoNombre: segundoNombre,
+                    estado: 'registrado',
+                    createdAt: new Date().toISOString()
+                });
+
+                window.location.href = 'examen.html';
+                
+            } catch (error) {
+                console.error('Error al registrar:', error);
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('register-form').classList.remove('hidden');
+                alert('Error al registrar. Por favor intenta de nuevo.');
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "C" || e.key === "J")) || (e.ctrlKey && e.key === "u")) {
+                e.preventDefault();
+            }
+        });
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
